@@ -1,0 +1,56 @@
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+# Fonction pour envoyer un e-mail
+def envoyer_mail(destinataire):
+    # Paramètres du serveur SMTP
+    smtp_server = "smtp.example.com"
+    smtp_port = 587
+    smtp_user = "votre_email@example.com"
+    smtp_password = "votre_mot_de_passe"
+
+    sujet = "Alerte : Tentatives de connexion échouées"
+    message = "Vous avez échoué à entrer le bon mot de passe 3 fois."
+
+    # Configuration du message
+    msg = MIMEMultipart()
+    msg['From'] = smtp_user
+    msg['To'] = destinataire
+    msg['Subject'] = sujet
+    msg.attach(MIMEText(message, 'plain'))
+
+    try:
+        # Connexion au serveur SMTP
+        server = smtplib.SMTP(smtp_server, smtp_port)
+        server.starttls()  # Activation de TLS
+        server.login(smtp_user, smtp_password)
+        # Envoi de l'e-mail
+        server.sendmail(smtp_user, destinataire, msg.as_string())
+        server.quit()
+        print("E-mail envoyé avec succès.")
+    except Exception as e:
+        print(f"Erreur lors de l'envoi de l'e-mail : {e}")
+
+# Fonction principale de création de mot de passe
+def verifier_mot_de_passe():
+    mot_de_passe_correct = "votre_mot_de_passe_securise"  # Le mot de passe correct
+    essais = 0
+    max_essais = 3
+
+    while essais < max_essais:
+        mot_de_passe = input("Veuillez entrer le mot de passe : ")
+        if mot_de_passe == mot_de_passe_correct:
+            print("Mot de passe correct !")
+            return True
+        else:
+            essais += 1
+            print(f"Mot de passe incorrect. Tentative {essais}/{max_essais}")
+
+    # Si les trois tentatives échouent, envoi de l'e-mail
+    print("Vous avez épuisé toutes vos tentatives.")
+    envoyer_mail("destinataire@example.com")
+
+# Lancer la vérification du mot de passe
+if __name__ == "__main__":
+    verifier_mot_de_passe()
